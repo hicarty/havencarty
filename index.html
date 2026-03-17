@@ -1876,6 +1876,21 @@ const observer = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.12 });
 
+/* ==================== SCROLL REVEAL ==================== */
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.1 });
+revealEls.forEach(el => io.observe(el));
+
+/* ==================== TAB ACTIVE ==================== */
+document.querySelectorAll('.svc-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.svc-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 </script>
 </body>
