@@ -6,6 +6,615 @@
 <title>integrate — New Business Account Management</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --bg: #0b0d12;
+    --bg2: #0f1118;
+    --pink: #d946a8;
+    --pink-glow: rgba(217,70,168,0.55);
+    --teal: #00e5c8;
+    --teal-glow: rgba(0,229,200,0.55);
+    --teal-mid: #00c9b1;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --muted2: #9ca3af;
+    --border: rgba(255,255,255,0.07);
+    --card: rgba(255,255,255,0.04);
+  }
+  
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+  
+  /* ===================== CANVAS ===================== */
+  #bg-canvas {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  /* ===================== NAV ===================== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3.5rem;
+    height: 60px;
+    background: rgba(11,13,18,0.75);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .nav-logo-box {
+    width: 26px; height: 26px;
+    background: linear-gradient(135deg, var(--teal), var(--pink));
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 800; color: #000;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.82rem; color: var(--muted); text-decoration: none;
+    font-weight: 400; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-right { display: flex; align-items: center; gap: 1rem; }
+  .nav-open {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; color: var(--muted2);
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .open-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 6px #22c55e;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.5; }
+  }
+  .nav-cta {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem; font-weight: 700;
+    padding: 0.5rem 1.4rem;
+    background: var(--teal);
+    color: #000;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .nav-cta:hover { background: var(--pink); color: #fff; }
+  
+  /* ===================== LAYOUT ===================== */
+  .content { position: relative; z-index: 1; }
+  section { position: relative; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 3.5rem; }
+  .wrap-sm { max-width: 760px; margin: 0 auto; padding: 0 3.5rem; }
+  
+  /* ===================== HERO ===================== */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 100px 2rem 60px;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--teal);
+    border: 1px solid rgba(0,229,200,0.25);
+    padding: 0.35rem 1rem;
+    border-radius: 20px;
+    background: rgba(0,229,200,0.06);
+    margin-bottom: 2rem;
+    letter-spacing: 0.08em;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 .name-haven { color: var(--text); }
+  .hero h1 .name-carty {
+    background: linear-gradient(90deg, var(--teal), var(--pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 1rem; color: var(--muted2);
+    max-width: 520px; margin: 0 auto 0.8rem;
+    font-weight: 400; line-height: 1.7;
+  }
+  .hero-role {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem; color: var(--muted);
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.04em;
+  }
+  .hero-btns { display: flex; gap: 1rem; justify-content: center; margin-bottom: 3.5rem; }
+  .btn-fill {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.75rem 1.8rem;
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #000; border-radius: 6px; text-decoration: none;
+    transition: all 0.25s; letter-spacing: 0.01em;
+  }
+  .btn-fill:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,229,200,0.35); }
+  .btn-outline {
+    font-family: 'Syne', sans-serif; font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.75rem 1.8rem;
+    border: 1px solid var(--border);
+    color: var(--muted2); border-radius: 6px; text-decoration: none;
+    transition: all 0.25s;
+  }
+  .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+  .hero-tags {
+    display: flex; gap: 2.5rem; justify-content: center;
+  }
+  .hero-tag {
+    font-size: 0.78rem; color: var(--muted);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .hero-tag svg { opacity: 0.5; }
+  
+  /* ===================== SERVICES ===================== */
+  #services {
+    padding: 90px 0;
+    background: rgba(255,255,255,0.015);
+    border-top: 1px solid var(--border);
+  }
+  .section-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+  .section-title .hl {
+    background: linear-gradient(90deg, var(--teal), var(--pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .section-sub {
+    font-size: 0.9rem; color: var(--muted2);
+    line-height: 1.75; max-width: 520px;
+    margin-bottom: 3rem;
+  }
+  .services-header { text-align: center; }
+  .services-header .section-sub { margin: 0 auto 3rem; }
+  
+  /* Service type tabs */
+  .svc-tabs {
+    display: flex; gap: 0.5rem; justify-content: center;
+    margin-bottom: 3rem; flex-wrap: wrap;
+  }
+  .svc-tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.1em;
+    padding: 0.4rem 1rem;
+    border-radius: 20px; border: 1px solid var(--border);
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+    background: transparent;
+  }
+  .svc-tab.active {
+    background: rgba(0,229,200,0.1);
+    border-color: rgba(0,229,200,0.35);
+    color: var(--teal);
+  }
+  
+  .services-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+  .svc-card {
+    background: var(--bg2);
+    padding: 2rem;
+    position: relative; overflow: hidden;
+    transition: background 0.3s;
+  }
+  .svc-card:hover { background: rgba(255,255,255,0.05); }
+  .svc-card::after {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 2px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .svc-card.t::after { background: var(--teal); }
+  .svc-card.p::after { background: var(--pink); }
+  .svc-card:hover::after { opacity: 1; }
+  
+  .svc-icon-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.2rem;
+  }
+  .svc-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+  .svc-icon.t { background: rgba(0,229,200,0.12); }
+  .svc-icon.p { background: rgba(217,70,168,0.12); }
+  .svc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; color: var(--border);
+    letter-spacing: 0.1em;
+  }
+  .svc-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem; border-radius: 4px;
+    margin-bottom: 0.7rem; display: inline-block;
+  }
+  .svc-badge.t { background: rgba(0,229,200,0.1); color: var(--teal); }
+  .svc-badge.p { background: rgba(217,70,168,0.1); color: var(--pink); }
+  .svc-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    margin-bottom: 0.65rem; line-height: 1.3;
+  }
+  .svc-card p {
+    font-size: 0.82rem; color: var(--muted2);
+    line-height: 1.65; font-weight: 300;
+  }
+  
+  /* Feature banner */
+  .svc-feature {
+    margin-top: 2rem;
+    background: rgba(0,229,200,0.04);
+    border: 1px solid rgba(0,229,200,0.12);
+    border-radius: 10px;
+    padding: 2rem;
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 1.5rem; align-items: start;
+  }
+  .svc-feature-icon {
+    width: 44px; height: 44px;
+    background: rgba(0,229,200,0.1);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+  }
+  .svc-feature h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem;
+  }
+  .svc-feature p {
+    font-size: 0.82rem; color: var(--muted2); line-height: 1.65;
+  }
+  .svc-feature-tags {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.8rem;
+  }
+  .ftag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.08em;
+    padding: 0.25rem 0.6rem; border-radius: 4px;
+  }
+  .ftag.t { background: rgba(0,229,200,0.1); color: var(--teal); border: 1px solid rgba(0,229,200,0.2); }
+  .ftag.p { background: rgba(217,70,168,0.1); color: var(--pink); border: 1px solid rgba(217,70,168,0.2); }
+  
+  /* ===================== PROCESS ===================== */
+  #process { padding: 90px 0; }
+  .process-header { text-align: center; margin-bottom: 4rem; }
+  .process-header .section-sub { margin: 0 auto; }
+  .process-timeline {
+    position: relative;
+    display: flex; flex-direction: column;
+    gap: 0;
+  }
+  .process-timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, var(--teal), var(--pink), transparent);
+    transform: translateX(-50%);
+  }
+  .pt-row {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 0; align-items: start;
+    margin-bottom: 2.5rem;
+  }
+  .pt-row:nth-child(even) .pt-card { grid-column: 3; }
+  .pt-row:nth-child(even) .pt-empty { grid-column: 1; }
+  
+  .pt-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.6rem;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+  .pt-card:hover { border-color: rgba(0,229,200,0.25); }
+  .pt-num-label {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 0.8rem;
+  }
+  .pt-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--teal), var(--pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .pt-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem;
+  }
+  .pt-card p {
+    font-size: 0.81rem; color: var(--muted2); line-height: 1.65;
+  }
+  .pt-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.8rem; }
+  .pt-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.08em;
+    padding: 0.2rem 0.55rem; border-radius: 4px;
+    background: rgba(0,229,200,0.08); color: var(--teal);
+    border: 1px solid rgba(0,229,200,0.15);
+  }
+  .pt-node {
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: 1.6rem;
+  }
+  .pt-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--pink));
+    box-shadow: 0 0 12px rgba(0,229,200,0.5);
+    position: relative; z-index: 1;
+  }
+  .pt-empty { /* placeholder */ }
+  
+  /* ===================== VALUES ===================== */
+  #values {
+    padding: 90px 0;
+    background: rgba(255,255,255,0.015);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .values-header { text-align: center; margin-bottom: 3.5rem; }
+  .values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .val-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .val-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 10px;
+  }
+  .val-card:hover { transform: translateY(-4px); border-color: rgba(0,229,200,0.2); }
+  .val-card:hover::before { opacity: 1; background: rgba(0,229,200,0.03); }
+  .val-icon {
+    font-size: 1.4rem; margin-bottom: 1rem;
+    width: 42px; height: 42px;
+    background: rgba(0,229,200,0.08);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .val-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem;
+  }
+  .val-card p { font-size: 0.81rem; color: var(--muted2); line-height: 1.65; }
+  
+  /* ===================== TESTIMONIALS ===================== */
+  #testimonials { padding: 90px 0; }
+  .testi-header { text-align: center; margin-bottom: 3.5rem; }
+  .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .testi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    position: relative;
+  }
+  .testi-card::before {
+    content: '"';
+    position: absolute; top: 1rem; right: 1.5rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 4rem; font-weight: 800;
+    color: rgba(0,229,200,0.08);
+    line-height: 1;
+  }
+  .testi-stars {
+    display: flex; gap: 2px; margin-bottom: 1rem;
+  }
+  .star { color: var(--teal); font-size: 0.75rem; }
+  .testi-card blockquote {
+    font-size: 0.83rem; color: var(--muted2);
+    line-height: 1.75; font-style: italic;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+  }
+  .testi-author { display: flex; align-items: center; gap: 0.75rem; }
+  .testi-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--pink));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700; color: #000;
+    flex-shrink: 0;
+  }
+  .testi-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem; font-weight: 700;
+  }
+  .testi-role {
+    font-size: 0.72rem; color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+  .testi-company {
+    font-size: 0.7rem; color: var(--teal);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  /* ===================== CONTACT ===================== */
+  #contact { padding: 90px 0 100px; }
+  .contact-header { text-align: center; margin-bottom: 3.5rem; }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 3rem; align-items: start; }
+  .contact-info h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;
+  }
+  .contact-info p { font-size: 0.83rem; color: var(--muted2); line-height: 1.65; margin-bottom: 2rem; }
+  .contact-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 0.8rem;
+  }
+  .contact-item-icon {
+    width: 34px; height: 34px; border-radius: 7px; flex-shrink: 0;
+    background: rgba(0,229,200,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+  }
+  .contact-item-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.63rem; color: var(--muted); letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 0.1rem;
+  }
+  .contact-item-val {
+    font-size: 0.83rem; color: var(--text); font-weight: 500;
+  }
+  .contact-item-val a { color: var(--teal); text-decoration: none; }
+  .contact-item-val a:hover { color: var(--pink); }
+  
+  .contact-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2.5rem;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .field label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.63rem; color: var(--muted);
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .field input, .field textarea, .field select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 2px rgba(0,229,200,0.1);
+  }
+  .field textarea { min-height: 110px; resize: vertical; }
+  .field select option { background: #1a1d27; }
+  .form-full { margin-bottom: 1rem; }
+  .form-submit { text-align: right; margin-top: 1.5rem; }
+  .btn-submit {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.8rem 2rem;
+    background: linear-gradient(135deg, var(--teal), #00b89a);
+    color: #000; border: none; border-radius: 6px;
+    cursor: pointer; transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,229,200,0.3); }
+  
+  /* ===================== FOOTER ===================== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 3.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(0,0,0,0.3);
+  }
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .footer-links { display: flex; gap: 2rem; }
+  .footer-links a { font-size: 0.75rem; color: var(--muted); text-decoration: none; }
+  .footer-links a:hover { color: var(--teal); }
+  .footer-right {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  
+  /* ===================== SCROLL ANIMATIONS ===================== */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.65s ease, transform 0.65s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+  .reveal-delay-5 { transition-delay: 0.5s; }
+  
+  /* ===================== RESPONSIVE ===================== */
+  @media (max-width: 900px) {
+    .wrap, .wrap-sm { padding: 0 1.5rem; }
+    nav { padding: 0 1.5rem; }
+    .nav-links { display: none; }
+    .services-grid { grid-template-columns: 1fr; }
+    .process-timeline::before { left: 20px; }
+    .pt-row { grid-template-columns: 40px 1fr; }
+    .pt-row:nth-child(even) .pt-card,
+    .pt-row:nth-child(odd) .pt-card { grid-column: 2; }
+    .pt-empty { display: none; }
+    .values-grid, .testi-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 1rem; padding: 1.5rem; text-align: center; }
+    .footer-links { display: none; }
+  }
+  </style>
+<style>
   :root {
     --pink: #ff3d8b;
     --pink-light: #ff80b5;
@@ -781,325 +1390,378 @@
 
 <div class="content">
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">integrate.</div>
-  <ul class="nav-links">
-    <li><a href="#services">Services</a></li>
-    <li><a href="#process">Process</a></li>
-    <li><a href="#values">About</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
-  <a href="#contact" class="nav-cta">Let's Talk</a>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-copy">
-      <p class="hero-eyebrow">Haven Carty · UK & Ireland</p>
-      <h1 class="hero-title">
-        New Business<br>
-        <span class="accent-teal">Account</span><br>
-        <span class="accent-pink">Management.</span>
-      </h1>
-      <p class="hero-subtitle">
-        Connecting startups to functional prototypes. Agile-driven account management, 
-        business development, and product delivery — from first brief to scaled product.
-      </p>
-      <div class="hero-actions">
-        <a href="#contact" class="btn-primary">Start a conversation</a>
-        <a href="#services" class="btn-ghost">View Services</a>
-      </div>
+  <canvas id="bg-canvas"></canvas>
+  
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <div class="nav-logo-box">IA</div>
+      Integrate AgilePM
     </div>
-
-    <div class="hero-card">
-      <p class="hero-card-label">// What We Deliver</p>
-      <div class="service-pill">
-        <div class="dot dot-teal"></div>
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#values">Values</a></li>
+      <li><a href="#testimonials">News</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <span class="nav-open"><span class="open-dot"></span>Open to Collaboration</span>
+      <a href="#contact" class="nav-cta">Let's Talk</a>
+    </div>
+  </nav>
+  
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">✦ Sign in Collaboration</div>
+    <h1>
+      <span class="name-haven">Hi, I'm </span><span class="name-carty">Haven Carty</span>
+    </h1>
+    <p class="hero-role">New Business Account Manager &amp; Scrum Master</p>
+    <p class="hero-sub">Helping startups transform ideas into reality. From MVP to market-ready products with agile precision, transparent processes, and unwavering integrity.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-fill">Let's Work Together</a>
+      <a href="#services" class="btn-outline">View Services</a>
+    </div>
+    <div class="hero-tags">
+      <span class="hero-tag">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M4 7h6M7 4v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Product Management
+      </span>
+      <span class="hero-tag">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 4.5v3l2 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Business Development
+      </span>
+      <span class="hero-tag">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10l4-4 3 3 3-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Scrum Master
+      </span>
+    </div>
+  </section>
+  
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="wrap">
+      <div class="services-header reveal">
+        <span class="section-kicker">What I Offer</span>
+        <h2 class="section-title">Services Tailored for <span class="hl">Startup Success</span></h2>
+        <p class="section-sub">From initial concept to scalable product, I provide hands-on support across the entire business development and product delivery lifecycle.</p>
+      </div>
+  
+      <div class="svc-tabs reveal">
+        <span class="svc-tab active">Account Manager</span>
+        <span class="svc-tab">New Business Sales</span>
+        <span class="svc-tab">PM</span>
+        <span class="svc-tab">Certified</span>
+        <span class="svc-tab">Technical</span>
+        <span class="svc-tab">Startup</span>
+        <span class="svc-tab">Growth</span>
+      </div>
+  
+      <div class="services-grid reveal">
+        <div class="svc-card t">
+          <div class="svc-icon-row">
+            <div class="svc-icon t">🤝</div>
+            <span class="svc-num">01</span>
+          </div>
+          <span class="svc-badge t">Account Manager</span>
+          <h3>New Business Sales</h3>
+          <p>Strategic account management and pipeline development. Building lasting relationships with clients while driving revenue growth.</p>
+        </div>
+        <div class="svc-card p">
+          <div class="svc-icon-row">
+            <div class="svc-icon p">📦</div>
+            <span class="svc-num">02</span>
+          </div>
+          <span class="svc-badge p">PM</span>
+          <h3>Product Management</h3>
+          <p>End-to-end product lifecycle management. From ideation to launch, ensuring your product meets market demands.</p>
+        </div>
+        <div class="svc-card t">
+          <div class="svc-icon-row">
+            <div class="svc-icon t">⚡</div>
+            <span class="svc-num">03</span>
+          </div>
+          <span class="svc-badge t">Certified</span>
+          <h3>Scrum Master Services</h3>
+          <p>Facilitating agile ceremonies, removing blockers, and fostering a collaborative team culture that delivers results.</p>
+        </div>
+        <div class="svc-card p">
+          <div class="svc-icon-row">
+            <div class="svc-icon p">🔧</div>
+            <span class="svc-num">04</span>
+          </div>
+          <span class="svc-badge p">Technical</span>
+          <h3>Troubleshooting &amp; Bug Fixing</h3>
+          <p>Expert debugging and code troubleshooting. I dive deep into codebases to identify issues and implement robust fixes.</p>
+        </div>
+        <div class="svc-card t">
+          <div class="svc-icon-row">
+            <div class="svc-icon t">🚀</div>
+            <span class="svc-num">05</span>
+          </div>
+          <span class="svc-badge t">Startup</span>
+          <h3>MVP &amp; PoC Delivery</h3>
+          <p>Rapid prototyping and minimum viable product development. Get your idea to market faster with focused execution.</p>
+        </div>
+        <div class="svc-card p">
+          <div class="svc-icon-row">
+            <div class="svc-icon p">📈</div>
+            <span class="svc-num">06</span>
+          </div>
+          <span class="svc-badge p">Growth</span>
+          <h3>Business Development</h3>
+          <p>Identifying growth opportunities, strategic partnerships, and market expansion. On-site visits available.</p>
+        </div>
+      </div>
+  
+      <div class="svc-feature reveal">
+        <div class="svc-feature-icon">⚙️</div>
         <div>
-          <div class="service-pill-text">New Business Development</div>
-          <div class="service-pill-sub">Pipeline · Outreach · Conversion</div>
-        </div>
-      </div>
-      <div class="service-pill">
-        <div class="dot dot-pink"></div>
-        <div>
-          <div class="service-pill-text">Account Management</div>
-          <div class="service-pill-sub">Retention · Growth · Relationships</div>
-        </div>
-      </div>
-      <div class="service-pill">
-        <div class="dot dot-blend"></div>
-        <div>
-          <div class="service-pill-text">Scrum & Agile PM</div>
-          <div class="service-pill-sub">Sprints · Delivery · Culture</div>
-        </div>
-      </div>
-      <div class="service-pill">
-        <div class="dot dot-teal"></div>
-        <div>
-          <div class="service-pill-text">IoT & Embedded Consulting</div>
-          <div class="service-pill-sub">Hardware · Cloud · Front-end</div>
-        </div>
-      </div>
-      <div class="card-divider"></div>
-      <div class="card-stat">
-        <div class="stat-item">
-          <div class="stat-num">7+</div>
-          <div class="stat-label">Years XP</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">UK/IE</div>
-          <div class="stat-label">Based</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">SaaS</div>
-          <div class="stat-label">Specialist</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- MARQUEE -->
-<div class="marquee-section">
-  <div class="marquee-track">
-    <div class="marquee-item"><span>New Business</span> <span class="sep">✦</span></div>
-    <div class="marquee-item">Account Management <span class="sep">✦</span></div>
-    <div class="marquee-item"><span>Agile PM</span> <span class="sep">✦</span></div>
-    <div class="marquee-item">Scrum Master <span class="sep">✦</span></div>
-    <div class="marquee-item"><span>IoT Consulting</span> <span class="sep">✦</span></div>
-    <div class="marquee-item">Front-end Dev <span class="sep">✦</span></div>
-    <div class="marquee-item"><span>MVP Delivery</span> <span class="sep">✦</span></div>
-    <div class="marquee-item">Product Strategy <span class="sep">✦</span></div>
-    <div class="marquee-item"><span>New Business</span> <span class="sep">✦</span></div>
-    <div class="marquee-item">Account Management <span class="sep">✦</span></div>
-    <div class="marquee-item"><span>Agile PM</span> <span class="sep">✦</span></div>
-    <div class="marquee-item">Scrum Master <span class="sep">✦</span></div>
-    <div class="marquee-item"><span>IoT Consulting</span> <span class="sep">✦</span></div>
-    <div class="marquee-item">Front-end Dev <span class="sep">✦</span></div>
-    <div class="marquee-item"><span>MVP Delivery</span> <span class="sep">✦</span></div>
-    <div class="marquee-item">Product Strategy <span class="sep">✦</span></div>
-  </div>
-</div>
-
-<!-- SERVICES -->
-<section id="services">
-  <div class="section-inner">
-    <div class="fade-up">
-      <p class="section-tag">Services</p>
-      <h2 class="section-title">Built for businesses<br>that want to grow.</h2>
-      <p class="section-sub">From pipeline to product — strategic account management backed by technical depth and a servant-leadership approach.</p>
-    </div>
-
-    <div class="services-grid">
-      <div class="service-card teal fade-up">
-        <span class="service-icon">◈</span>
-        <span class="service-num">01</span>
-        <h3>New Business Development</h3>
-        <p>Strategic outreach, cold LinkedIn campaigns, and lead generation. I identify, qualify, and close opportunities — building your pipeline from first contact to signed contract.</p>
-        <span class="service-tag tag-teal">Sales & Growth</span>
-      </div>
-      <div class="service-card pink fade-up" style="transition-delay:0.1s">
-        <span class="service-icon">◇</span>
-        <span class="service-num">02</span>
-        <h3>Account Management</h3>
-        <p>Retain and grow existing client relationships. Structured review cycles, proactive communication, and a deep focus on client outcomes over short-term transactions.</p>
-        <span class="service-tag tag-pink">Client Success</span>
-      </div>
-      <div class="service-card blend fade-up" style="transition-delay:0.2s">
-        <span class="service-icon">◉</span>
-        <span class="service-num">03</span>
-        <h3>Scrum & Agile Facilitation</h3>
-        <p>Certified Scrum Product Owner running sprint ceremonies, removing blockers, and coaching teams toward high-velocity delivery without the overhead of corporate bureaucracy.</p>
-        <span class="service-tag tag-teal">Agile</span>
-      </div>
-      <div class="service-card teal fade-up" style="transition-delay:0.3s">
-        <span class="service-icon">▷</span>
-        <span class="service-num">04</span>
-        <h3>MVP & PoC Delivery</h3>
-        <p>Get to market faster. From wireframes to working product — I manage the full lifecycle including design research, development sprints, and launch validation.</p>
-        <span class="service-tag tag-teal">Product</span>
-      </div>
-      <div class="service-card pink fade-up" style="transition-delay:0.4s">
-        <span class="service-icon">⬡</span>
-        <span class="service-num">05</span>
-        <h3>IoT & Embedded Consulting</h3>
-        <p>Bridging web and hardware. Front-end development for embedded GUIs, dashboard design for IoT devices, and augmentation into existing electronics engineering teams.</p>
-        <span class="service-tag tag-pink">Technical</span>
-      </div>
-      <div class="service-card blend fade-up" style="transition-delay:0.5s">
-        <span class="service-icon">△</span>
-        <span class="service-num">06</span>
-        <h3>Website & CMS Packages</h3>
-        <p>Professional 5-page websites on WordPress or Shopify, from design research through to content implementation. From £1800 excl. VAT, with optional hosting agreements.</p>
-        <span class="service-tag tag-teal">Web</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="glow-line"></div>
-
-<!-- PROCESS -->
-<section id="process">
-  <div class="section-inner">
-    <div class="fade-up">
-      <p class="section-tag">Process</p>
-      <h2 class="section-title">How we get things done.</h2>
-      <p class="section-sub">A proven cadence that moves fast without cutting corners — built on transparency and iterative delivery.</p>
-    </div>
-
-    <div class="process-grid fade-up">
-      <div class="process-card">
-        <div class="process-num">01</div>
-        <div class="process-body">
-          <h3>Discovery</h3>
-          <p>Stakeholder interviews, market analysis, and a Design Research document outlining findings, competitors, and opportunity areas.</p>
-        </div>
-      </div>
-      <div class="process-card">
-        <div class="process-num">02</div>
-        <div class="process-body">
-          <h3>Strategy & Planning</h3>
-          <p>Product roadmap, sprint structure, and resource plan. Clear milestones and a communication rhythm that keeps everyone aligned.</p>
-        </div>
-      </div>
-      <div class="process-card">
-        <div class="process-num">03</div>
-        <div class="process-body">
-          <h3>Agile Delivery</h3>
-          <p>Daily standups, iterative builds, continuous integration. I remove blockers and maintain team velocity — hands on when needed.</p>
-        </div>
-      </div>
-      <div class="process-card">
-        <div class="process-num">04</div>
-        <div class="process-body">
-          <h3>Launch & Scale</h3>
-          <p>Staged deployment, user feedback loops, and iterative improvement cycles. Plus optional ongoing SLA hosting and administration.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="glow-line glow-line-pink"></div>
-
-<!-- ABOUT / VALUES -->
-<section id="values">
-  <div class="section-inner">
-    <div class="about-grid">
-      <div class="about-copy fade-up">
-        <p class="section-tag">About</p>
-        <h2 class="section-title">Collaborative by design. Technical by nature.</h2>
-        <p class="section-sub">Haven Carty is a UK & Ireland based product manager and new business developer with 7 years of cross-discipline experience — from SaaS platforms and IoT devices to PWAs and startup MVPs.</p>
-        <p class="section-sub" style="margin-top:1rem;">Trading as Integrate, and backed by Cluster Technology, the mission is simple: build the best integrated systems by building the best teams.</p>
-        <div class="value-pills">
-          <span class="value-pill">Scrum Certified</span>
-          <span class="value-pill">UX / Figma</span>
-          <span class="value-pill">Azure DevOps</span>
-          <span class="value-pill">Servant Leadership</span>
-          <span class="value-pill">IoT / Embedded</span>
-          <span class="value-pill">NatWest Accelerator</span>
-        </div>
-      </div>
-
-      <div class="about-visual fade-up">
-        <div class="floating-dot fdot1"></div>
-        <div class="floating-dot fdot2"></div>
-        <div class="glass-block main">
-          <p class="glass-label">// Testimonial</p>
-          <p class="glass-title">"Haven integrates himself brilliantly into cross-discipline teams."</p>
-          <p class="glass-desc">Software Director — Transpose Software, East Midlands Best Software Company 2018</p>
-          <div class="glass-meta">
-            <span class="glass-chip">Award-Winning Agency</span>
-          </div>
-        </div>
-        <div class="glass-block accent">
-          <p class="glass-label glass-accent-label">// Currently Available</p>
-          <p class="glass-title">New Business & Account Management Engagements</p>
-          <p class="glass-desc">UK, Ireland & Remote. On-site visits available.</p>
-          <div class="glass-meta">
-            <span class="glass-chip pink-chip">Open to Projects</span>
+          <h3>Scrum Master with Technical Edge</h3>
+          <p>Beyond facilitating sprints, I bring hands-on technical expertise. When your team hits a blocker, I don't just escalate — I roll up my sleeves. From debugging complex issues to reviewing code architecture, I bridge the gap between process and execution.</p>
+          <div class="svc-feature-tags">
+            <span class="ftag t">Code Troubleshooting</span>
+            <span class="ftag p">Bug Fixing</span>
+            <span class="ftag t">Technical Review</span>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
-
-<div class="glow-line"></div>
-
-<!-- CONTACT -->
-<section id="contact">
-  <div class="section-inner">
-    <div class="contact-inner">
-      <div class="fade-up">
-        <p class="section-tag">Contact</p>
-        <h2 class="section-title">Ready to build something?</h2>
-        <p class="section-sub">Whether you need new business development, ongoing account management, or a full product build — let's start the conversation.</p>
+  </section>
+  
+  <!-- PROCESS -->
+  <section id="process">
+    <div class="wrap">
+      <div class="process-header reveal">
+        <span class="section-kicker">The Process</span>
+        <h2 class="section-title">From Idea to <span class="hl">Market Reality</span></h2>
+        <p class="section-sub">A proven approach that delivers results. I'll visit your site, work with your team, and ensure we ship something valuable — fast.</p>
       </div>
-
-      <div class="contact-form fade-up">
-        <div class="form-row">
-          <div class="form-field">
-            <label>Name</label>
-            <input type="text" placeholder="Your name">
+  
+      <div class="process-timeline">
+        <!-- Row 1: left -->
+        <div class="pt-row reveal">
+          <div class="pt-card">
+            <div class="pt-num-label"><span class="pt-num">01</span></div>
+            <h3>Discovery</h3>
+            <p>Understanding your vision, market, and goals through deep stakeholder alignment.</p>
+            <div class="pt-tags">
+              <span class="pt-tag">Stakeholder interviews</span>
+              <span class="pt-tag">Market research</span>
+              <span class="pt-tag">Requirements gathering</span>
+            </div>
           </div>
-          <div class="form-field">
-            <label>Company</label>
-            <input type="text" placeholder="Your company">
+          <div class="pt-node"><div class="pt-dot"></div></div>
+          <div class="pt-empty"></div>
+        </div>
+        <!-- Row 2: right -->
+        <div class="pt-row reveal reveal-delay-1">
+          <div class="pt-empty"></div>
+          <div class="pt-node"><div class="pt-dot"></div></div>
+          <div class="pt-card">
+            <div class="pt-num-label"><span class="pt-num">02</span></div>
+            <h3>Strategy</h3>
+            <p>Mapping the path from concept to launch with a clear, actionable roadmap.</p>
+            <div class="pt-tags">
+              <span class="pt-tag">Product roadmap</span>
+              <span class="pt-tag">Sprint planning</span>
+              <span class="pt-tag">Resource allocation</span>
+            </div>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>Email</label>
-            <input type="email" placeholder="your@email.com">
+        <!-- Row 3: left -->
+        <div class="pt-row reveal reveal-delay-2">
+          <div class="pt-card">
+            <div class="pt-num-label"><span class="pt-num">03</span></div>
+            <h3>Execution</h3>
+            <p>Agile development with continuous delivery and real-time blocker removal.</p>
+            <div class="pt-tags">
+              <span class="pt-tag">Daily standups</span>
+              <span class="pt-tag">Iterative development</span>
+            </div>
           </div>
-          <div class="form-field">
-            <label>Service Interest</label>
-            <select>
-              <option value="">Select a service...</option>
-              <option>New Business Development</option>
-              <option>Account Management</option>
-              <option>Scrum & Agile Facilitation</option>
-              <option>MVP / PoC Delivery</option>
-              <option>IoT & Embedded Consulting</option>
-              <option>Website Package</option>
-            </select>
+          <div class="pt-node"><div class="pt-dot"></div></div>
+          <div class="pt-empty"></div>
+        </div>
+        <!-- Row 4: right -->
+        <div class="pt-row reveal reveal-delay-3">
+          <div class="pt-empty"></div>
+          <div class="pt-node"><div class="pt-dot"></div></div>
+          <div class="pt-card">
+            <div class="pt-num-label"><span class="pt-num">04</span></div>
+            <h3>Launch</h3>
+            <p>Market-ready product with ongoing support, feedback loops and iteration.</p>
+            <div class="pt-tags">
+              <span class="pt-tag">MVP deployment</span>
+              <span class="pt-tag">User feedback loops</span>
+              <span class="pt-tag">Iterative improvement</span>
+            </div>
           </div>
-        </div>
-        <div class="form-field">
-          <label>Message</label>
-          <textarea placeholder="Tell me about your project..."></textarea>
-        </div>
-        <div class="form-submit">
-          <a href="mailto:no-reply@havencarty.com" class="btn-primary">Send Message →</a>
         </div>
       </div>
-
-      <p style="margin-top:1.5rem; font-family:'DM Mono',monospace; font-size:0.7rem; color:var(--text-muted); letter-spacing:0.1em;">
-        Or reach out directly: <a href="mailto:havencarty@gmail.com" style="color:var(--teal);">havencarty@gmail.com</a>
-        &nbsp;·&nbsp; <a href="tel:+447539894123" style="color:var(--pink);">+44 753 9894123</a>
-      </p>
     </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">integrate.</div>
-  <div class="footer-meta">
-    © 2026 Integrate · Haven Carty<br>
-    Integrate UK00004125606
-  </div>
-  <div class="footer-contact">
-    <a href="mailto:havencarty@gmail.com">havencarty@gmail.com</a>
-  </div>
-</footer>
-
-</div><!-- /content -->
+  </section>
+  
+  <!-- VALUES -->
+  <section id="values">
+    <div class="wrap">
+      <div class="values-header reveal">
+        <span class="section-kicker">Core Principles</span>
+        <h2 class="section-title">Values That Drive <span class="hl">Every Decision</span></h2>
+        <p class="section-sub" style="margin:0 auto;">More than just words — these principles guide how I work, collaborate, and deliver results for every project.</p>
+      </div>
+      <div class="values-grid">
+        <div class="val-card reveal reveal-delay-1">
+          <div class="val-icon">🛡️</div>
+          <h3>Resilience</h3>
+          <p>Setbacks are stepping stones. I approach challenges with determination, adapting strategies while maintaining focus on the end goal.</p>
+        </div>
+        <div class="val-card reveal reveal-delay-2">
+          <div class="val-icon">👁️</div>
+          <h3>Transparency</h3>
+          <p>Clear communication, honest feedback, and visible progress. No hidden agendas — just open collaboration and shared understanding.</p>
+        </div>
+        <div class="val-card reveal reveal-delay-3">
+          <div class="val-icon">♡</div>
+          <h3>Integrity</h3>
+          <p>Doing what's right, even when it's difficult. My word is my bond, and I deliver on commitments with consistency and accountability.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- TESTIMONIALS -->
+  <section id="testimonials">
+    <div class="wrap">
+      <div class="testi-header reveal">
+        <span class="section-kicker">Testimonials</span>
+        <h2 class="section-title">What Clients <span class="hl">Say</span></h2>
+        <p class="section-sub" style="margin:0 auto;">Building lasting partnerships through reliable delivery and genuine collaboration.</p>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card reveal reveal-delay-1">
+          <div class="testi-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <blockquote>Haven's strength was his ability to integrate himself well into teams across different departments. He was approachable and worked amicably with colleagues, building positive relationships that contributed to our collaborative culture.</blockquote>
+          <div class="testi-author">
+            <div class="testi-avatar">SD</div>
+            <div>
+              <div class="testi-name">Software Director</div>
+              <div class="testi-role">Transpose Software</div>
+              <div class="testi-company">Award-Winning Software Agency</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card reveal reveal-delay-2">
+          <div class="testi-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <blockquote>What stood out was the combination of technical understanding and people skills. Haven bridged the gap between our dev team and stakeholders effortlessly, keeping everyone aligned and projects on track.</blockquote>
+          <div class="testi-author">
+            <div class="testi-avatar">PL</div>
+            <div>
+              <div class="testi-name">Product Lead</div>
+              <div class="testi-role">TechStart Ventures</div>
+              <div class="testi-company">Early-Stage Investment Firm</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card reveal reveal-delay-3">
+          <div class="testi-stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <blockquote>The MVP was delivered ahead of schedule. Haven's hands-on approach to troubleshooting meant blockers were resolved quickly, and the team velocity improved significantly within the first sprint.</blockquote>
+          <div class="testi-author">
+            <div class="testi-avatar">CT</div>
+            <div>
+              <div class="testi-name">CTO</div>
+              <div class="testi-role">InnovateTech</div>
+              <div class="testi-company">B2B SaaS Platform</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="contact-header reveal">
+        <span class="section-kicker">Get In Touch</span>
+        <h2 class="section-title">Ready to Build <span class="hl">Something Great?</span></h2>
+        <p class="section-sub" style="margin:0 auto;">Let's discuss how I can help bring your vision to life. Available for on-site collaboration and remote partnerships.</p>
+      </div>
+      <div class="contact-grid">
+        <div class="reveal">
+          <h3>Let's connect</h3>
+          <p>Whether you need new business development, account management, or full product delivery — I'm here.</p>
+          <div class="contact-item">
+            <div class="contact-item-icon">✉️</div>
+            <div>
+              <div class="contact-item-label">Email</div>
+              <div class="contact-item-val"><a href="mailto:havencarty@proton.me">havencarty@proton.me</a></div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">🌍</div>
+            <div>
+              <div class="contact-item-label">Available On-Site</div>
+              <div class="contact-item-val">Willing to travel to your location for hands-on collaboration</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">📅</div>
+            <div>
+              <div class="contact-item-label">Book a Call</div>
+              <div class="contact-item-val">30-minute discovery session to explore your needs</div>
+            </div>
+          </div>
+        </div>
+        <div class="contact-form reveal reveal-delay-2">
+          <div class="form-row">
+            <div class="field">
+              <label>Name</label>
+              <input type="text" placeholder="Your name">
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" placeholder="your@email.com">
+            </div>
+          </div>
+          <div class="field form-full">
+            <label>Message</label>
+            <textarea placeholder="Tell me about your project..."></textarea>
+          </div>
+          <div class="form-submit">
+            <button class="btn-submit">Send Message →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">
+      <div class="nav-logo-box">IA</div>
+      Integrate AgilePM
+    </div>
+    <div class="footer-links">
+      <a href="#services">Services</a>
+      <a href="#process">Process</a>
+      <a href="#values">Values</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="footer-right">
+      © 2026 Integrate AgilePM · Haven Carty<br>
+      Built on Resilience · Transparency · Integrity
+    </div>
+  </footer>
+  
+  </div><!-- /content -->
 
 <script>
 // ============================
