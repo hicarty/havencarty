@@ -4,12 +4,12 @@ import { FourPins } from '@/components/four-pins'
 import { Hero } from '@/components/hero'
 import { IntegrateEcosystem } from '@/components/integrate-ecosystem'
 import { SiteFooter } from '@/components/site-footer'
-import { SiteHeader } from '@/components/site-header'
+import { Navbar } from '@servantleaders/ui/navbar'
 
 export default function Page() {
   return (
     <>
-      <SiteHeader />
+      <Navbar />
       <main>
         <Hero />
         <FourPins />
