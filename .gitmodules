@@ -1,0 +1,4 @@
+[submodule "apps/servantleaders"]
+	path = apps/servantleaders
+	url = https://github.com/hicarty/servantleaders.git
+	branch = v0/havencarty-1148-fd02fc45

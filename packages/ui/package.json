@@ -1,0 +1,8 @@
+{
+  "name": "@servantleaders/ui",
+  "version": "0.1.0",
+  "private": true,
+  "exports": { "./navbar": "./src/navbar.tsx" },
+  "devDependencies": { "@types/react": "^19", "@types/react-dom": "^19" },
+  "peerDependencies": { "next": ">=15", "react": ">=18" }
+}
