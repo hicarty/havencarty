@@ -118,9 +118,6 @@ importers:
       '@base-ui/react':
         specifier: ^1.5.0
         version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      '@servantleaders/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@vercel/analytics':
         specifier: 1.6.1
         version: 1.6.1(next@16.2.6(@babel/core@7.29.7)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
